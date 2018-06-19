@@ -155,6 +155,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		log.Error(err)
 	}
+	if len(data) == 0 {
+	  log.Error("Empty.")
+	  return
+	}
 	// {"beans":[{"name":"Hadoop:service=NameNode,name=FSNamesystem", ...}, {"name":"java.lang:type=MemoryPool,name=Code Cache", ...}, ...]}
 	m := f.(map[string]interface{})
 	// [{"name":"Hadoop:service=NameNode,name=FSNamesystem", ...}, {"name":"java.lang:type=MemoryPool,name=Code Cache", ...}, ...]
@@ -163,7 +167,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		nameDataMap := nameData.(map[string]interface{})
 		/*
 			{
-				"name" : "Hadoop:service=DataNode,name=FSDatasetState-null",
+				"name" : "Hadoop:service=DataNode,name=FSDatasetState",
 				"modelerType" : "org.apache.hadoop.hdfs.server.datanode.fsdataset.impl.FsDatasetImpl",
 				"Remaining" : 49909760000,
 				"StorageInfo" : "FSDataset{dirpath='[/tmp/hadoop-root/dfs/data/current]'}",
@@ -177,10 +181,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 				"EstimatedCapacityLostTotal" : 0,
 				"NumBlocksCached" : 0,
 				"NumBlocksFailedToCache" : 0,
-				"NumBlocksFailedToUncache" : 0
+				"NumBlocksFailedToUnCache" : 0
 			}
 		*/
-		if nameDataMap["name"] == "Hadoop:service=DataNode,name=FSDatasetState-null" {
+		if nameDataMap["name"] == "Hadoop:service=DataNode,name=FSDatasetState" {
 			e.CapacityTotal.Set(nameDataMap["Capacity"].(float64))
 			e.CapacityUsed.Set(nameDataMap["DfsUsed"].(float64))
 			e.CapacityRemaining.Set(nameDataMap["Remaining"].(float64))
@@ -193,7 +197,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 			e.BlocksCached.Set(nameDataMap["NumBlocksCached"].(float64))
 			e.BlocksFailedToCache.Set(nameDataMap["NumBlocksFailedToCache"].(float64))
-			e.BlocksFailedToUncache.Set(nameDataMap["NumBlocksFailedToUncache"].(float64))
+			e.BlocksFailedToUncache.Set(nameDataMap["NumBlocksFailedToUnCache"].(float64))
 		}
 		/*
 			   {
