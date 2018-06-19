@@ -155,6 +155,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	if err != nil {
 		log.Error(err)
 	}
+	if len(data) == 0 {
+	  log.Error("Empty.")
+	  return
+	}
 	// {"beans":[{"name":"Hadoop:service=NameNode,name=FSNamesystem", ...}, {"name":"java.lang:type=MemoryPool,name=Code Cache", ...}, ...]}
 	m := f.(map[string]interface{})
 	// [{"name":"Hadoop:service=NameNode,name=FSNamesystem", ...}, {"name":"java.lang:type=MemoryPool,name=Code Cache", ...}, ...]
